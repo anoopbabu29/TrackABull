@@ -97,7 +97,10 @@ if __name__ == "__main__":
     threshold = 0.8
 
     recognizedHumans = {}
+	lastHumanPositions = {}
     recognizedObjects = {}
+	lastObjectPositions = {}
+	objectOwners = {}
 
     while True:
         img = cap.read()
@@ -112,8 +115,17 @@ if __name__ == "__main__":
 
         for k in removedHumans:
             recognizedHumans.pop(k, None)
+			lastHumanPositions.pop(k, None)
 
         for (objectID, (centroid, rect)) in humans.items():
+			if (objectID not in lastHumanPositions):
+				lastHumanPositions[objectID] = [{"centroid": centroid, "rect": rect}]
+			else:
+				if (len(lastHumanPositions[objectID]) == > 2)
+					lastHumanPositions[objectID].append({"centroid": centroid, "rect": rect})
+				
+				lastHumanPositions[objectID].popleft()
+
             if (objectID not in recognizedHumans):
                 subimg = img[rect[1]: rect[3], rect[0]: rect[2]]
                     
@@ -133,8 +145,17 @@ if __name__ == "__main__":
 
         for k in removedObjects:
             recognizedObjects.pop(k, None)
+			lastObjectPositions.pop(k, None)
 
         for (objectID, (centroid, rect)) in objects.items():
+			if (objectID not in lastObjectPositions):
+				lastObjectPositions[objectID] = [{"centroid": centroid, "rect": rect}]
+			else:
+				if (len(lastObjectPositions[objectID]) == > 2)
+					lastObjectPositions[objectID].append({"centroid": centroid, "rect": rect})
+				
+				lastObjectPositions[objectID].popleft()
+
             ##if (objectID not in recognizedObjects):
             subimg = img[rect[1]: rect[3], rect[0]: rect[2]]
             
@@ -150,6 +171,16 @@ if __name__ == "__main__":
             text = ("thing " + recognizedObjects[objectID]) if (objectID in recognizedObjects) else "ID {}".format(objectID)
             highlightObjectOnImage(displayImg, text, centroid, rect, (0,0,255))
             
+		for (objectID, name) in recognizedObjects:
+			if (objectID not in objectOwners):
+				pos = lastObjectPositions[objectID]
+				if (len(pos) < 2):
+					
+				else:
+					
+			else:
+
+
         cv2.imshow("preview", displayImg)
         key = cv2.waitKey(1)
         if key & 0xFF == ord('q'):
