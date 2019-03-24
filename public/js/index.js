@@ -1,3 +1,17 @@
+var config = {
+    apiKey: "AIzaSyA4s65NGcz_9EfKiPmfFKmN9brXwYR7BcU",
+    authDomain: "track-a-bull.firebaseapp.com",
+    databaseURL: "https://track-a-bull.firebaseio.com",
+    projectId: "track-a-bull",
+    storageBucket: "track-a-bull.appspot.com",
+    messagingSenderId: "819088197621"
+};
+
+firebase.initializeApp(config);
+
+let db = firebase.firestore();
+let fireFunct = firebase.functions();
+
 let list =[
     {
         model: "S10",
@@ -20,14 +34,14 @@ function fillTable(ItemList) {
     tbody.innerHTML = "";
 
     for(let i = 0; i < ItemList.length; i++){
-        let id = document.createElement(i+1);
+        let id = document.createElement('td');
         let model = document.createElement('td');
         let type = document.createElement('td');
         let isCheckedOut = document.createElement('td');
         let checkOutDate = document.createElement('td');
         let checkedOutBy = document.createElement('td');
 
-        const idNode = document.createTextNode(id)
+        const idNode = document.createTextNode(i+1)
         const modelNode = document.createTextNode(ItemList[i].model)
         const typeNode = document.createTextNode(ItemList[i].type);
         const isCheckedNode = document.createTextNode(ItemList[i].isCheckedOut);
@@ -53,3 +67,10 @@ function fillTable(ItemList) {
         tbody.appendChild(html);
     }    
 }
+
+
+let items = db.collection("Items").get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+    });
+});
