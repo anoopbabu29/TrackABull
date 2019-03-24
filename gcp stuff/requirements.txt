@@ -1,0 +1,8 @@
+gcloud
+oauth2client
+imutils
+scipy
+cmake
+numpy
+opencv-python
+face_recognition
