@@ -9,7 +9,7 @@ var config = {
 
 firebase.initializeApp(config);
 
-let db = firebase.firestore();
+let db = firebase.database();
 let fireFunct = firebase.functions();
 
 let list =[
@@ -68,9 +68,3 @@ function fillTable(ItemList) {
     }    
 }
 
-
-let items = db.collection("Items").get().then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data()}`);
-    });
-});
