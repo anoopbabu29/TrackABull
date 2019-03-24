@@ -62,32 +62,43 @@ class DetectorAPI:
         self.sess.close()
         self.default_graph.close()
 
-def highlightObjectOnImage(img, name, center, boundaries):
+def highlightObjectOnImage(img, name, center, boundaries, color):
     cv2.putText(img, name, (centroid[0] - 10, centroid[1] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     cv2.circle(img, (center[0], center[1]), 4, (0, 255, 0), -1)
 
-    cv2.rectangle(img,(boundaries[0], boundaries[1]),(boundaries[2], boundaries[3]),(255,0,0),2)
+    cv2.rectangle(img,(boundaries[0], boundaries[1]),(boundaries[2], boundaries[3]),color,2)
 
-def getHumanBoxes(boxes, scores, classes):
+def separateObjectsFromHuman(boxes, scores, classes):
     humanBoxes = []
+    objectBoxes = []
+
     for i in range(len(boxes)):
-        if classes[i] == 1 and scores[i] > threshold:
-            humanBoxes.append(boxes[i])
+        if scores[i] > threshold:
+            if classes[i] == 1:
+                humanBoxes.append(boxes[i])
+            else:
+                objectBoxes.append(boxes[i])
     
-    return humanBoxes
+    return humanBoxes, objectBoxes
 
 if __name__ == "__main__":
-    model_path = 'D:/Users/jose_/Desktop/Desarrollo/Human-Detector/ssdlite_mobilenet_v2_coco_2018_05_09/frozen_inference_graph.pb'
+    model_path = 'D:/Users/jose_/Desktop/Desarrollo/TrackABull/visualDetection/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
     pickle_path = "encodings.pickle"
     odapi = DetectorAPI(path_to_ckpt=model_path)
-    tracker = CentroidTracker(1)
-    threshold = 0.7
-    cap = VideoStream(src=0).start()
+    
+    humanTracker = CentroidTracker(5)
     knownFaces = pickle.loads(open(pickle_path, "rb").read())
 
-    recognized = {}
+    objectTracker = CentroidTracker(5)
+    qrDecoder = cv2.QRCodeDetector()
+    
+    cap = VideoStream(src=0).start()
+    threshold = 0.8
+
+    recognizedHumans = {}
+    recognizedObjects = {}
 
     while True:
         img = cap.read()
@@ -96,27 +107,49 @@ if __name__ == "__main__":
 
         boxes, scores, classes, num = odapi.processFrame(img)
 
+        humanBoxes, objectBoxes = separateObjectsFromHuman(boxes, scores, classes)
         # Visualization of the results of a detection.
-        objects, removed = tracker.update(getHumanBoxes(boxes, scores, classes))
+        humans, removedHumans = humanTracker.update(humanBoxes)
 
-        for k in removed:
-            recognized.pop(k, None)
+        for k in removedHumans:
+            recognizedHumans.pop(k, None)
 
-        for (objectID, (centroid, rect)) in objects.items():
-            if (objectID not in recognized):
+        for (objectID, (centroid, rect)) in humans.items():
+            if (objectID not in recognizedHumans):
                 subimg = img[rect[1]: rect[3], rect[0]: rect[2]]
                     
                 try:
                     faces = detectFaces(subimg, knownFaces)
                     if len(faces) > 0:
-                        recognized[objectID] = faces[0]
+                        recognizedHumans[objectID] = faces[0]
                 except:
                     print("Not nice")
                     pass
 
                 
-            text = recognized[objectID] if (objectID in recognized) else "ID {}".format(objectID)
-            highlightObjectOnImage(displayImg, text, centroid, rect)
+            text = recognizedHumans[objectID] if (objectID in recognizedHumans) else "ID {}".format(objectID)
+            highlightObjectOnImage(displayImg, text, centroid, rect, (255,0,0))
+
+        objects, removedObjects = objectTracker.update(objectBoxes)
+
+        for k in removedObjects:
+            recognizedObjects.pop(k, None)
+
+        for (objectID, (centroid, rect)) in objects.items():
+            ##if (objectID not in recognizedObjects):
+            subimg = img[rect[1]: rect[3], rect[0]: rect[2]]
+            
+            try:
+                data,bbox,rectifiedImage = qrDecoder.detectAndDecode(subimg)
+                if len(data) > 0:
+                    recognizedObjects[objectID] = data
+            except:
+                print("Not nice")
+                pass
+
+                
+            text = ("thing " + recognizedObjects[objectID]) if (objectID in recognizedObjects) else "ID {}".format(objectID)
+            highlightObjectOnImage(displayImg, text, centroid, rect, (0,0,255))
             
         cv2.imshow("preview", displayImg)
         key = cv2.waitKey(1)

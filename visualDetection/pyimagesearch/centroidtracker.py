@@ -39,7 +39,7 @@ class CentroidTracker():
 		if len(rects) == 0:
 			# loop over any existing tracked objects and mark them
 			# as disappeared
-			for objectID in self.disappeared.keys():
+			for objectID in list(self.disappeared.keys()):
 				self.disappeared[objectID] += 1
 
 				# if we have reached a maximum number of consecutive
@@ -51,7 +51,7 @@ class CentroidTracker():
 
 			# return early as there are no centroids or tracking info
 			# to update
-			return self.objects
+			return self.objects, deleted
 
 		# initialize an array of input centroids for the current frame
 		inputCentroids = np.zeros((len(rects), 2), dtype="int")
