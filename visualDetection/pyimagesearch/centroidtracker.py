@@ -51,7 +51,7 @@ class CentroidTracker():
 
 			# return early as there are no centroids or tracking info
 			# to update
-			return self.objects
+			return self.objects, []
 
 		# initialize an array of input centroids for the current frame
 		inputCentroids = np.zeros((len(rects), 2), dtype="int")
