@@ -1,10 +1,16 @@
-.greatFont{
-    font-family: cursive
-    
-}
 .text-center{
     text-align: center
 }
 td, th {
     text-align: center
+}
+.container{
+    margin-top: 30px
+}
+nav.navbar{
+    background-color: rgb(47, 114, 47) !important
+}
+.heading{
+    color: beige !important;
+    font-size: 30px
 }
