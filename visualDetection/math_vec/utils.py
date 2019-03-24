@@ -1,7 +1,7 @@
 
 
 
-def is_same_direction(x1, y2, x2, y2):
+def is_same_direction(x1, y1, x2, y2):
 	x = False
 	y = False
 	if ((x1 < 0 and x2 < 0) or (x1 > 0 and x2 > 0) or (x1 == x2)):
