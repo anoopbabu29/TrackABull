@@ -11,7 +11,6 @@ firebase.initializeApp(config);
 let itemsDb = firebase.database().ref('/Items/');
 let fireFunct = firebase.functions();
 
-/*
 let list =[
     {
         model: "S10",
@@ -28,7 +27,7 @@ let list =[
         checkedOutBy: "anup"
     }
 ]
-*/
+
 
 function fillTable(ItemList) {
     let tbody = document.getElementById('itemTableBody');

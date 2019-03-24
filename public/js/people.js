@@ -11,65 +11,108 @@ firebase.initializeApp(config);
 let interactionsDb = firebase.database().ref('/Interactions/');
 let fireFunct = firebase.functions();
 
+let filtList;
+
 function fillTable(ItemList) {
     let tbody = document.getElementById('itemTableBody');
     tbody.innerHTML = "";
 
     ItemList.shift();
+
     const byName = R.groupBy(function(student) {
-        const name = student.Name;
-        return name;
+        if(student.Returned == null){
+            return student.Name;
+        }
     });
     
-    const x = byName(ItemList);
+    filtList = byName(ItemList);
 
-    console.log(x)
+    console.log(filtList)
 
-    ItemList.forEach(element => {
-        console.log(element);
-        element["Name"];
-    });
-
-
-
-    for(let i = 1; i < ItemList.length; i++){
+    let i = 0;
+    for (const person in filtList) {
+        if (person == 'undefined' || person == 'null'){
+            continue;
+        }
+        i++;
         const idElem = document.createElement('td');
-        const modelElem = document.createElement('td');
-        const typeElem = document.createElement('td');
-        const checkOutDateElem = document.createElement('td');
-        const checkedOutByElem = document.createElement('td');
-
-        const checkedOutBy = ItemList[i].CheckedOutBy ? ItemList[i].CheckedOutBy : "N/A";
-        const checkOutDate = ItemList[i].CheckOutDate ? ItemList[i].CheckOutDate : "-";
+        const nameElem = document.createElement('td');
+        const numItemsElem = document.createElement('td');
+        const buttonTdElem = document.createElement('td');
 
         const idNode = document.createTextNode(i)
-        const modelNode = document.createTextNode(ItemList[i].Model)
-        const typeNode = document.createTextNode(ItemList[i].Type);
-        const byNode = document.createTextNode(checkedOutBy);
-        const dateNode = document.createTextNode(checkOutDate);
+        const nameNode = document.createTextNode(person)
+        const numItemsNode = document.createTextNode(filtList[person].length);
+        
+        buttonTdElem.innerHTML = '<a class="btn btn-outline-info modalItems" role="button" data-toggle="modal" data-target="#ModalCenter">View Items</a>'
+
+        idElem.appendChild(idNode);
+        nameElem.appendChild(nameNode);
+        numItemsElem.appendChild(numItemsNode);
+
+        let html = document.createElement('tr');
+
+        html.id = 'user' + i;
+
+        html.appendChild(idElem);
+        html.appendChild(nameElem);
+        html.appendChild(numItemsElem);
+        html.appendChild(buttonTdElem);
+
+        tbody.appendChild(html);
+    }
+
+    addEventListeners();
+}
+
+interactionsDb.on("value", function(snapshot){
+    fillTable(snapshot.val());
+}, function(err){
+    console.log(err);
+});
+
+
+function addEventListeners() {
+    var btnList = document.body.getElementsByClassName('modalItems');
+
+    for (const btn of btnList) {
+        const tr = btn.parentNode.parentNode;
+        btn.addEventListener('click', function(){loadModal(tr.id)} );
+    }
+}
+
+function loadModal(id){
+    const userId = document.getElementById(id);
+    const modalTitle = document.getElementById('ModalTitle')
+    const name = userId.children[1].innerText
+    modalTitle.innerText = "Items checked out by " + name
+
+    fillModalTable(filtList[name])
+}
+
+function fillModalTable(ItemList) {
+    let tbody = document.getElementById('modalTableBody');
+    tbody.innerHTML = "";
+
+    for(let i = 0; i < ItemList.length; i++){
+        const idElem = document.createElement('td');
+        const modelElem = document.createElement('td');
+        const checkOutDateElem = document.createElement('td');
+
+        const idNode = document.createTextNode(i+1)
+        const modelNode = document.createTextNode(ItemList[i].Item)
+        const dateNode = document.createTextNode(ItemList[i].CheckOut);
 
         idElem.appendChild(idNode);
         modelElem.appendChild(modelNode);
-        typeElem.appendChild(typeNode);
-        checkedOutByElem.appendChild(byNode);
         checkOutDateElem.appendChild(dateNode);
 
         let html = document.createElement('tr');
 
         html.appendChild(idElem);
         html.appendChild(modelElem);
-        html.appendChild(typeElem);
-        html.appendChild(checkedOutByElem);
         html.appendChild(checkOutDateElem);
 
         tbody.appendChild(html);
     }    
 }
-
-interactionsDb.on("value", function(snapshot){
-    console.log(snapshot.val());
-    fillTable(snapshot.val());
-}, function(err){
-    console.log(err);
-});
-
