@@ -6,10 +6,9 @@ var config = {
     storageBucket: "track-a-bull.appspot.com",
     messagingSenderId: "819088197621"
 };
-
 firebase.initializeApp(config);
 
-let db = firebase.database();
+let itemsDb = firebase.database().ref('/Items/');
 let fireFunct = firebase.functions();
 
 let list =[
@@ -29,42 +28,47 @@ let list =[
     }
 ]
 
+
 function fillTable(ItemList) {
     let tbody = document.getElementById('itemTableBody');
     tbody.innerHTML = "";
 
-    for(let i = 0; i < ItemList.length; i++){
-        let id = document.createElement('td');
-        let model = document.createElement('td');
-        let type = document.createElement('td');
-        let isCheckedOut = document.createElement('td');
-        let checkOutDate = document.createElement('td');
-        let checkedOutBy = document.createElement('td');
+    for(let i = 1; i < ItemList.length; i++){
+        const idElem = document.createElement('td');
+        const modelElem = document.createElement('td');
+        const typeElem = document.createElement('td');
+        const checkOutDateElem = document.createElement('td');
+        const checkedOutByElem = document.createElement('td');
 
-        const idNode = document.createTextNode(i+1)
-        const modelNode = document.createTextNode(ItemList[i].model)
-        const typeNode = document.createTextNode(ItemList[i].type);
-        const isCheckedNode = document.createTextNode(ItemList[i].isCheckedOut);
-        const dateNode = document.createTextNode(ItemList[i].checkedOutBy);
-        const byNode = document.createTextNode(ItemList[i].checkOutDate);
+        const checkedOutBy = ItemList[i].CheckedOutBy ? ItemList[i].CheckedOutBy : "N/A";
+        const checkOutDate = ItemList[i].CheckOutDate ? ItemList[i].CheckOutDate : "-";
 
-        id.appendChild(idNode);
-        model.appendChild(modelNode);
-        type.appendChild(typeNode);
-        isCheckedOut.appendChild(isCheckedNode);
-        checkedOutBy.appendChild(dateNode);
-        checkOutDate.appendChild(byNode);
+        const idNode = document.createTextNode(i)
+        const modelNode = document.createTextNode(ItemList[i].Model)
+        const typeNode = document.createTextNode(ItemList[i].Type);
+        const byNode = document.createTextNode(checkedOutBy);
+        const dateNode = document.createTextNode(checkOutDate);
+
+        idElem.appendChild(idNode);
+        modelElem.appendChild(modelNode);
+        typeElem.appendChild(typeNode);
+        checkedOutByElem.appendChild(byNode);
+        checkOutDateElem.appendChild(dateNode);
 
         let html = document.createElement('tr');
 
-        html.appendChild(id);
-        html.appendChild(model);
-        html.appendChild(type);
-        html.appendChild(isCheckedOut);
-        html.appendChild(checkedOutBy);
-        html.appendChild(checkOutDate);
+        html.appendChild(idElem);
+        html.appendChild(modelElem);
+        html.appendChild(typeElem);
+        html.appendChild(checkedOutByElem);
+        html.appendChild(checkOutDateElem);
 
         tbody.appendChild(html);
     }    
 }
 
+itemsDb.on("value", function(snapshot){
+    fillTable(snapshot.val());
+}, function(err){
+    console.log(err);
+});
