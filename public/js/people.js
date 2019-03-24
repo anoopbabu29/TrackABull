@@ -15,13 +15,29 @@ function fillTable(ItemList) {
     let tbody = document.getElementById('itemTableBody');
     tbody.innerHTML = "";
 
+    ItemList.shift();
+    const byName = R.groupBy(function(student) {
+        const name = student.Name;
+        return name;
+    });
+    
+    const x = byName(ItemList);
+
+    console.log(x)
+
+    ItemList.forEach(element => {
+        console.log(element);
+        element["Name"];
+    });
+
+
+
     for(let i = 1; i < ItemList.length; i++){
         const idElem = document.createElement('td');
         const modelElem = document.createElement('td');
         const typeElem = document.createElement('td');
         const checkOutDateElem = document.createElement('td');
         const checkedOutByElem = document.createElement('td');
-        const blankElem = document.createElement('td');
 
         const checkedOutBy = ItemList[i].CheckedOutBy ? ItemList[i].CheckedOutBy : "N/A";
         const checkOutDate = ItemList[i].CheckOutDate ? ItemList[i].CheckOutDate : "-";
@@ -43,7 +59,6 @@ function fillTable(ItemList) {
         html.appendChild(idElem);
         html.appendChild(modelElem);
         html.appendChild(typeElem);
-        html.appendChild(blankElem)
         html.appendChild(checkedOutByElem);
         html.appendChild(checkOutDateElem);
 

@@ -40,7 +40,6 @@ function fillTable(ItemList) {
         const typeElem = document.createElement('td');
         const checkOutDateElem = document.createElement('td');
         const checkedOutByElem = document.createElement('td');
-        const blankElem = document.createElement('td');
 
         const checkedOutBy = ItemList[i].CheckedOutBy ? ItemList[i].CheckedOutBy : "N/A";
         const checkOutDate = ItemList[i].CheckOutDate ? ItemList[i].CheckOutDate : "-";
@@ -62,7 +61,6 @@ function fillTable(ItemList) {
         html.appendChild(idElem);
         html.appendChild(modelElem);
         html.appendChild(typeElem);
-        html.appendChild(blankElem)
         html.appendChild(checkedOutByElem);
         html.appendChild(checkOutDateElem);
 
@@ -70,19 +68,8 @@ function fillTable(ItemList) {
     }    
 }
 
-
-let interactions = firebase.database().ref('/Interactions/');
-
 itemsDb.on("value", function(snapshot){
-    console.log(snapshot.val());
     fillTable(snapshot.val());
 }, function(err){
     console.log(err);
 });
-
-interactions.on("value", function(snapshot){
-    console.log(snapshot.val());
-}, function(err){
-    console.log(err);
-});
-
