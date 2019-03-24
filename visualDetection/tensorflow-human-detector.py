@@ -96,17 +96,17 @@ if __name__ == "__main__":
 	model_path = 'D:/Users/jose_/Desktop/Desarrollo/TrackABull/visualDetection/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb'
 	pickle_path = "encodings.pickle"
 	odapi = DetectorAPI(path_to_ckpt=model_path)
-	humanTracker = CentroidTracker(5)
+	humanTracker = CentroidTracker(0)
 	knownFaces = pickle.loads(open(pickle_path, "rb").read())
-	objectTracker = CentroidTracker(5)
+	objectTracker = CentroidTracker(0)
 	qrDecoder = cv2.QRCodeDetector()
-	cap = VideoStream(src=0).start()
+	cap = VideoStream(src=1).start()
 	threshold = 0.8
 	recognizedHumans = {}
-	lastHumanPositions = {}
+	#lastHumanPositions = {}
 	recognizedObjects = {}
-	lastObjectPositions = {}
-	objectOwners = {}
+	#lastObjectPositions = {}
+	#objectOwners = {}
 
 	while True:
 		img = cap.read()
@@ -122,15 +122,15 @@ if __name__ == "__main__":
 
 		for k in removedHumans:
 			recognizedHumans.pop(k, None)
-			lastHumanPositions.pop(k, None)
+			#lastHumanPositions.pop(k, None)
 
 		for (objectID, (centroid, rect)) in humans.items():
-			if (objectID not in lastHumanPositions):
-				lastHumanPositions[objectID] = [{"centroid": centroid, "rect": rect}]
-			else:
-				if (len(lastHumanPositions[objectID]) >= 4):
-					lastHumanPositions[objectID].append({"centroid": centroid, "rect": rect})
-					lastHumanPositions[objectID].pop(0)
+			# if (objectID not in lastHumanPositions):
+			# 	lastHumanPositions[objectID] = [{"centroid": centroid, "rect": rect}]
+			# else:
+			# 	if (len(lastHumanPositions[objectID]) >= 4):
+			# 		lastHumanPositions[objectID].append({"centroid": centroid, "rect": rect})
+			# 		lastHumanPositions[objectID].pop(0)
 
 
 			if (objectID not in recognizedHumans):
@@ -152,15 +152,15 @@ if __name__ == "__main__":
 
 		for k in removedObjects:
 			recognizedObjects.pop(k, None)
-			lastObjectPositions.pop(k, None)
+			#lastObjectPositions.pop(k, None)
 
 		for (objectID, (centroid, rect)) in objects.items():
-			if (objectID not in lastObjectPositions):
-				lastObjectPositions[objectID] = [{"centroid": centroid, "rect": rect}]
-			else:
-				if (len(lastObjectPositions[objectID]) >= 4):
-					lastObjectPositions[objectID].append({"centroid": centroid, "rect": rect})
-					lastObjectPositions[objectID].pop(0)
+			#if (objectID not in lastObjectPositions):
+			#	lastObjectPositions[objectID] = [{"centroid": centroid, "rect": rect}]
+			#else:
+			#	if (len(lastObjectPositions[objectID]) >= 4):
+			#		lastObjectPositions[objectID].append({"centroid": centroid, "rect": rect})
+			#		lastObjectPositions[objectID].pop(0)
 				
 
 			# if (objectID not in recognizedObjects):
@@ -178,40 +178,40 @@ if __name__ == "__main__":
 			text = ("thing " + recognizedObjects[objectID]) if (objectID in recognizedObjects) else "ID {}".format(objectID)
 			highlightObjectOnImage(displayImg, text, centroid, rect, (0,0,255))
 			
-		for (objectID, name) in recognizedObjects.items():
-			if (name not in objectOwners):
-				objPos = lastObjectPositions[objectID]
-				if (len(objPos) > 4):
-					objPos0 = objPos[0]
-					objPos1 = objPos[1]
-					objPos2 = objPos[2]
-					objPos3 = objPos[3]
+		# for (objectID, name) in recognizedObjects.items():
+		# 	if (name not in objectOwners):
+		# 		objPos = lastObjectPositions[objectID]
+		# 		if (len(objPos) > 4):
+		# 			objPos0 = objPos[0]
+		# 			objPos1 = objPos[1]
+		# 			objPos2 = objPos[2]
+		# 			objPos3 = objPos[3]
 					
-					for (humanId, humanPositions) in lastHumanPositions:
-						if (len(humanPositions) > 4):
-							humanPos0 = humanPositions[0]
-							humanPos1 = humanPositions[1]
-							humanPos2 = humanPositions[2]
-							humanPos3 = humanPositions[3]
+		# 			for (humanId, humanPositions) in lastHumanPositions:
+		# 				if (len(humanPositions) > 4):
+		# 					humanPos0 = humanPositions[0]
+		# 					humanPos1 = humanPositions[1]
+		# 					humanPos2 = humanPositions[2]
+		# 					humanPos3 = humanPositions[3]
 
-							objRect3 = objPos3["rect"]
-							humanRect3 = humanPos3["rect"]
+		# 					objRect3 = objPos3["rect"]
+		# 					humanRect3 = humanPos3["rect"]
 
-							if (box_inside_box(objRect3[0], objRect3[1], objRect3[2], objRect3[3], humanRect3[0], humanRect3[1], humanRect3[2], humanRect3[3])):
-								objCenter0 = objPos0["centroid"]
-								humanCenter0 = humanPos0["centroid"]
-								objCenter3 = objPos3["centroid"]
-								humanCenter3 = humanPos3["centroid"]
+		# 					if (box_inside_box(objRect3[0], objRect3[1], objRect3[2], objRect3[3], humanRect3[0], humanRect3[1], humanRect3[2], humanRect3[3])):
+		# 						objCenter0 = objPos0["centroid"]
+		# 						humanCenter0 = humanPos0["centroid"]
+		# 						objCenter3 = objPos3["centroid"]
+		# 						humanCenter3 = humanPos3["centroid"]
 
-								objVector = vector_change(objCenter0[0], objCenter0[1], objCenter3[0], objCenter3[1])
-								humanVector = vector_change(humanCenter0[0], humanCenter0[1], humanCenter3[0], humanCenter3[1])
+		# 						objVector = vector_change(objCenter0[0], objCenter0[1], objCenter3[0], objCenter3[1])
+		# 						humanVector = vector_change(humanCenter0[0], humanCenter0[1], humanCenter3[0], humanCenter3[1])
 
-								sameX, samey = is_same_direction(objVector[0], objVector[1], humanVector[0], humanVector[1])
+		# 						sameX, samey = is_same_direction(objVector[0], objVector[1], humanVector[0], humanVector[1])
 
-								if (sameX):
-									objectOwners[name] = humanId
-									print(recognizedHumans[humanId] + " took thing " + name)
-									break
+		# 						if (sameX):
+		# 							objectOwners[name] = humanId
+		# 							print(recognizedHumans[humanId] + " took thing " + name)
+		# 							break
 		
 		cv2.imshow("preview", displayImg)
 		key = cv2.waitKey(1)
