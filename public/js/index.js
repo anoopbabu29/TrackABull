@@ -6,28 +6,11 @@ var config = {
     storageBucket: "track-a-bull.appspot.com",
     messagingSenderId: "819088197621"
 };
+
 firebase.initializeApp(config);
 
 let itemsDb = firebase.database().ref('/Items/');
 let fireFunct = firebase.functions();
-
-let list =[
-    {
-        model: "S10",
-        type: "phone",
-        isCheckedOut: true,
-        checkOutDate: "3/22/19 3:00 PM",
-        checkedOutBy: "Jose"
-    },
-    {
-        model: "iphun",
-        type: "phone",
-        isCheckedOut: true,
-        checkOutDate: "3/21/19 3:00 PM",
-        checkedOutBy: "anup"
-    }
-]
-
 
 function fillTable(ItemList) {
     let tbody = document.getElementById('itemTableBody');
