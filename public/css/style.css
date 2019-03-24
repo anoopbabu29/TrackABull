@@ -14,3 +14,11 @@ nav.navbar{
     color: beige !important;
     font-size: 30px
 }
+.nav-link{
+    color: rgba(255, 218, 120, 0.9) !important;
+}
+.search{
+    color: rgba(255, 218, 120, 0.9) !important;
+    background-color: black;
+    
+}
